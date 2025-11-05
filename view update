@@ -1,0 +1,21 @@
+-- Create view for high salary employees
+CREATE OR REPLACE VIEW HighSalaryEmp AS
+SELECT EmpID, EmpName, Salary FROM Employee WHERE Salary > 50000;
+
+-- Query view
+SELECT * FROM HighSalaryEmp;
+
+-- If using complex view (join) and need update, create INSTEAD OF trigger in Oracle on a view:
+CREATE OR REPLACE VIEW EmpDeptView AS
+SELECT e.EmpID,e.EmpName,e.DeptID,d.DeptName
+FROM Employee e JOIN Department d ON e.DeptID = d.DeptID;
+
+-- Make view updatable by INSTEAD OF triggers:
+CREATE OR REPLACE TRIGGER trg_empdept_view_upd
+INSTEAD OF UPDATE ON EmpDeptView
+FOR EACH ROW
+BEGIN
+  UPDATE Employee SET EmpName = :NEW.EmpName, DeptID = :NEW.DeptID WHERE EmpID = :OLD.EmpID;
+  -- DeptName not updated here (department table separate)
+END;
+/
