@@ -1,0 +1,45 @@
+CREATE TABLE Books (
+  BookID NUMBER PRIMARY KEY,
+  Title VARCHAR2(100)
+);
+
+CREATE TABLE Borrow (
+  BorrowID NUMBER PRIMARY KEY,
+  BookID NUMBER,
+  StudentID NUMBER,
+  BorrowDate DATE,
+  DueDate DATE,
+  ReturnDate DATE
+);
+
+INSERT INTO Books VALUES (1,'Database Systems');
+INSERT INTO Borrow VALUES (1,1,201, DATE '2025-10-01', DATE '2025-10-15', DATE '2025-10-20');
+COMMIT;
+
+-- Procedure to compute fine (Rs. 5 per day late)
+CREATE OR REPLACE PROCEDURE ComputeFine(p_borrowid IN NUMBER, p_fine OUT NUMBER) IS
+  v_due DATE;
+  v_return DATE;
+  v_days NUMBER;
+BEGIN
+  SELECT DueDate, ReturnDate INTO v_due, v_return FROM Borrow WHERE BorrowID = p_borrowid;
+  IF v_return IS NULL THEN
+    v_return := SYSDATE;
+  END IF;
+  v_days := TRUNC(v_return) - TRUNC(v_due);
+  IF v_days > 0 THEN
+    p_fine := v_days * 5;
+  ELSE
+    p_fine := 0;
+  END IF;
+END;
+/
+
+-- Test
+DECLARE
+  v_fine NUMBER;
+BEGIN
+  ComputeFine(1, v_fine);
+  DBMS_OUTPUT.PUT_LINE('Fine = '||v_fine);
+END;
+/
