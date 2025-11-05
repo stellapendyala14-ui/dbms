@@ -1,0 +1,46 @@
+CREATE TABLE Customer (
+  CustID NUMBER PRIMARY KEY,
+  CustName VARCHAR2(50)
+);
+
+CREATE TABLE Product (
+  ProdID NUMBER PRIMARY KEY,
+  ProdName VARCHAR2(100),
+  Price NUMBER
+);
+
+CREATE TABLE Orders (
+  OrderID NUMBER PRIMARY KEY,
+  CustID NUMBER,
+  OrderDate DATE,
+  CONSTRAINT fk_cust FOREIGN KEY (CustID) REFERENCES Customer(CustID) ON DELETE CASCADE
+);
+
+CREATE TABLE OrderItems (
+  ItemID NUMBER PRIMARY KEY,
+  OrderID NUMBER,
+  ProdID NUMBER,
+  Quantity NUMBER,
+  CONSTRAINT fk_order FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
+  CONSTRAINT fk_prod FOREIGN KEY (ProdID) REFERENCES Product(ProdID)
+);
+
+-- Sample data
+INSERT INTO Customer VALUES (1,'Ali');
+INSERT INTO Product VALUES (10,'Mouse',700);
+INSERT INTO Product VALUES (11,'Keyboard',1200);
+INSERT INTO Orders VALUES (101,1,SYSDATE);
+INSERT INTO OrderItems VALUES (1001,101,10,2);
+INSERT INTO OrderItems VALUES (1002,101,11,1);
+COMMIT;
+
+-- Subquery report: total order amount per order
+SELECT o.OrderID,
+       (SELECT SUM(p.Price * oi.Quantity)
+        FROM OrderItems oi JOIN Product p ON oi.ProdID = p.ProdID
+        WHERE oi.OrderID = o.OrderID) AS OrderTotal
+FROM Orders o;
+
+-- Delete customer -> cascades to orders & orderitems
+DELETE FROM Customer WHERE CustID = 1;
+COMMIT;
