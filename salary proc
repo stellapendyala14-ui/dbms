@@ -1,0 +1,28 @@
+-- Assumes Employee table from Program 1
+CREATE OR REPLACE PROCEDURE UpdateSalary(
+  p_empid IN NUMBER,
+  p_basic IN NUMBER
+) IS
+  v_HRA NUMBER;
+  v_DA NUMBER;
+  v_PF NUMBER;
+  v_net NUMBER;
+BEGIN
+  v_HRA := p_basic * 0.20;  -- 20% HRA
+  v_DA  := p_basic * 0.10;  -- 10% DA
+  v_PF  := p_basic * 0.12;  -- 12% PF
+  v_net := p_basic + v_HRA + v_DA - v_PF;
+
+  UPDATE Employee SET Salary = v_net WHERE EmpID = p_empid;
+  IF SQL%ROWCOUNT = 0 THEN
+    RAISE_APPLICATION_ERROR(-20001,'Employee not found');
+  END IF;
+  COMMIT;
+END;
+/
+
+-- Call
+BEGIN
+  UpdateSalary(102, 50000);
+END;
+/
