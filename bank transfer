@@ -1,0 +1,41 @@
+CREATE TABLE Account (
+  AccNo NUMBER PRIMARY KEY,
+  AccName VARCHAR2(50),
+  Balance NUMBER
+);
+
+INSERT INTO Account VALUES (1001,'Ramesh',50000);
+INSERT INTO Account VALUES (1002,'Suresh',30000);
+COMMIT;
+
+-- Transfer procedure
+CREATE OR REPLACE PROCEDURE TransferAmount(
+  p_from IN NUMBER,
+  p_to   IN NUMBER,
+  p_amt  IN NUMBER
+) IS
+  v_from_bal NUMBER;
+  v_to_bal NUMBER;
+BEGIN
+  SELECT Balance INTO v_from_bal FROM Account WHERE AccNo = p_from FOR UPDATE;
+  IF v_from_bal < p_amt THEN
+    RAISE_APPLICATION_ERROR(-20002,'Insufficient funds');
+  END IF;
+  UPDATE Account SET Balance = Balance - p_amt WHERE AccNo = p_from;
+  UPDATE Account SET Balance = Balance + p_amt WHERE AccNo = p_to;
+  COMMIT;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    ROLLBACK;
+    RAISE_APPLICATION_ERROR(-20003,'Account not found');
+  WHEN OTHERS THEN
+    ROLLBACK;
+    RAISE;
+END;
+/
+
+-- Call: successful
+BEGIN
+  TransferAmount(1001,1002,5000);
+END;
+/
