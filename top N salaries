@@ -1,0 +1,22 @@
+-- Table: Employee(EmpID, EmpName, Salary)
+CREATE OR REPLACE TYPE emp_rec_typ AS OBJECT (EmpID NUMBER, EmpName VARCHAR2(50), Salary NUMBER);
+/
+
+CREATE OR REPLACE TYPE emp_tab_typ AS TABLE OF emp_rec_typ;
+/
+
+CREATE OR REPLACE FUNCTION TopNSalaries(p_n IN NUMBER) RETURN emp_tab_typ PIPELINED IS
+  CURSOR c IS SELECT EmpID, EmpName, Salary FROM Employee ORDER BY Salary DESC;
+  cnt NUMBER := 0;
+BEGIN
+  FOR r IN c LOOP
+    EXIT WHEN cnt >= p_n;
+    PIPE ROW(emp_rec_typ(r.EmpID, r.EmpName, r.Salary));
+    cnt := cnt + 1;
+  END LOOP;
+  RETURN;
+END;
+/
+
+-- Usage
+SELECT * FROM TABLE(TopNSalaries(3));
