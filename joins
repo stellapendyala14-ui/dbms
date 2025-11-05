@@ -1,0 +1,46 @@
+-- Tables
+CREATE TABLE Department (
+  DeptID NUMBER PRIMARY KEY,
+  DeptName VARCHAR2(50)
+);
+
+CREATE TABLE Employee (
+  EmpID NUMBER PRIMARY KEY,
+  EmpName VARCHAR2(50),
+  DeptID NUMBER,
+  Salary NUMBER,
+  ManagerID NUMBER,
+  CONSTRAINT fk_dept FOREIGN KEY (DeptID) REFERENCES Department(DeptID)
+);
+
+-- Sample data
+INSERT INTO Department VALUES (1,'HR');
+INSERT INTO Department VALUES (2,'CSE');
+INSERT INTO Department VALUES (3,'Sales');
+
+INSERT INTO Employee VALUES (101,'Ravi',2,60000,NULL);
+INSERT INTO Employee VALUES (102,'Sonia',2,55000,101);
+INSERT INTO Employee VALUES (103,'Amit',1,45000,101);
+INSERT INTO Employee VALUES (104,'Meera',NULL,40000,NULL);
+
+COMMIT;
+
+-- INNER JOIN: employees with departments
+SELECT e.EmpID, e.EmpName, d.DeptName
+FROM Employee e INNER JOIN Department d ON e.DeptID = d.DeptID;
+
+-- LEFT OUTER JOIN: all employees, dept if any
+SELECT e.EmpID, e.EmpName, d.DeptName
+FROM Employee e LEFT JOIN Department d ON e.DeptID = d.DeptID;
+
+-- RIGHT OUTER JOIN: all departments, employees if any
+SELECT e.EmpID, e.EmpName, d.DeptName
+FROM Employee e RIGHT JOIN Department d ON e.DeptID = d.DeptID;
+
+-- FULL OUTER JOIN: union of both
+SELECT e.EmpID, e.EmpName, d.DeptName
+FROM Employee e FULL OUTER JOIN Department d ON e.DeptID = d.DeptID;
+
+-- SELF JOIN: manager and subordinate
+SELECT m.EmpName AS Manager, s.EmpName AS Subordinate
+FROM Employee m JOIN Employee s ON m.EmpID = s.ManagerID;
