@@ -1,0 +1,20 @@
+SET SERVEROUTPUT ON;
+DECLARE
+  CURSOR c_emp IS SELECT EmpID, EmpName, Salary FROM Employee;
+  v_empid Employee.EmpID%TYPE;
+  v_name Employee.EmpName%TYPE;
+  v_sal Employee.Salary%TYPE;
+  v_bonus NUMBER;
+BEGIN
+  OPEN c_emp;
+  LOOP
+    FETCH c_emp INTO v_empid, v_name, v_sal;
+    EXIT WHEN c_emp%NOTFOUND;
+    IF v_sal > 50000 THEN v_bonus := v_sal * 0.10;
+    ELSE v_bonus := v_sal * 0.05;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Emp: '||v_name||' Salary: '||v_sal||' Bonus: '||ROUND(v_bonus));
+  END LOOP;
+  CLOSE c_emp;
+END;
+/
