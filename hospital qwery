@@ -1,0 +1,34 @@
+CREATE TABLE Doctor (
+  DocID NUMBER PRIMARY KEY,
+  DocName VARCHAR2(50),
+  Speciality VARCHAR2(50)
+);
+
+CREATE TABLE Appointment (
+  AppID NUMBER PRIMARY KEY,
+  DocID NUMBER,
+  PatName VARCHAR2(50),
+  AppDate DATE,
+  Fee NUMBER,
+  CONSTRAINT fk_doc FOREIGN KEY (DocID) REFERENCES Doctor(DocID)
+);
+
+INSERT INTO Doctor VALUES (1,'Dr. Rao','Cardiology');
+INSERT INTO Doctor VALUES (2,'Dr. Sen','Orthopedics');
+
+INSERT INTO Appointment VALUES (1,1,'Priya',DATE '2025-10-01',500);
+INSERT INTO Appointment VALUES (2,1,'Karan',DATE '2025-10-05',600);
+INSERT INTO Appointment VALUES (3,2,'Nina',DATE '2025-10-07',400);
+COMMIT;
+
+-- Doctors with average fee > 450
+SELECT d.DocID, d.DocName, AVG(a.Fee) AS AvgFee
+FROM Doctor d JOIN Appointment a ON d.DocID = a.DocID
+GROUP BY d.DocID, d.DocName
+HAVING AVG(a.Fee) > 450;
+
+-- Nested query: list doctors who have appointments in October 2025
+SELECT DocName FROM Doctor WHERE DocID IN (
+  SELECT DISTINCT DocID FROM Appointment
+  WHERE AppDate BETWEEN DATE '2025-10-01' AND DATE '2025-10-31'
+);
