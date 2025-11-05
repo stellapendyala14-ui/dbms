@@ -1,0 +1,26 @@
+SET SERVEROUTPUT ON;
+DECLARE
+  v_num NUMBER := 10;
+  v_den NUMBER := 0; -- test divide by zero
+  v_res NUMBER;
+  v_name VARCHAR2(50);
+BEGIN
+  BEGIN
+    v_res := v_num / v_den;
+  EXCEPTION
+    WHEN ZERO_DIVIDE THEN
+      DBMS_OUTPUT.PUT_LINE('Division by zero handled');
+      v_res := NULL;
+  END;
+
+  DBMS_OUTPUT.PUT_LINE('Result = ' || NVL(TO_CHAR(v_res),'NULL'));
+
+  -- NO_DATA_FOUND example
+  BEGIN
+    SELECT Name INTO v_name FROM Students WHERE RollNo = 999;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('No student found with that RollNo');
+  END;
+END;
+/
