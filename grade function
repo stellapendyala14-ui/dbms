@@ -1,0 +1,27 @@
+CREATE TABLE Students (
+  RollNo NUMBER PRIMARY KEY,
+  Name VARCHAR2(50),
+  Marks NUMBER
+);
+
+INSERT INTO Students VALUES (1,'Anu',92);
+INSERT INTO Students VALUES (2,'Vikram',76);
+INSERT INTO Students VALUES (3,'Rhea',58);
+COMMIT;
+
+-- Function to return grade
+CREATE OR REPLACE FUNCTION get_grade(p_marks NUMBER) RETURN VARCHAR2 IS
+  v_grade VARCHAR2(2);
+BEGIN
+  IF p_marks >= 90 THEN v_grade := 'A+';
+  ELSIF p_marks >= 75 THEN v_grade := 'A';
+  ELSIF p_marks >= 60 THEN v_grade := 'B';
+  ELSIF p_marks >= 50 THEN v_grade := 'C';
+  ELSE v_grade := 'F';
+  END IF;
+  RETURN v_grade;
+END;
+/
+
+-- Use function in query
+SELECT RollNo, Name, Marks, get_grade(Marks) AS Grade FROM Students;
