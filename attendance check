@@ -1,0 +1,35 @@
+CREATE TABLE Attendance (
+  AttID NUMBER PRIMARY KEY,
+  StudentID NUMBER,
+  TotalClasses NUMBER,
+  Attended NUMBER,
+  Percentage NUMBER
+);
+
+CREATE SEQUENCE seq_att START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER trg_att_before_ins
+BEFORE INSERT OR UPDATE ON Attendance
+FOR EACH ROW
+BEGIN
+  IF :NEW.Attended > :NEW.TotalClasses THEN
+    RAISE_APPLICATION_ERROR(-20010,'Attended cannot exceed total classes');
+  END IF;
+  IF :NEW.TotalClasses > 0 THEN
+    :NEW.Percentage := (:NEW.Attended / :NEW.TotalClasses) * 100;
+  ELSE
+    :NEW.Percentage := 0;
+  END IF;
+  IF :NEW.AttID IS NULL THEN
+    :NEW.AttID := seq_att.NEXTVAL;
+  END IF;
+END;
+/
+
+-- Test good
+INSERT INTO Attendance(StudentID, TotalClasses, Attended) VALUES (301, 60, 54);
+COMMIT;
+
+-- Test bad (should fail)
+INSERT INTO Attendance(StudentID, TotalClasses, Attended) VALUES (302, 50, 55);
+-- -> will raise error
